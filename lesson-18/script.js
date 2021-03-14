@@ -1,39 +1,82 @@
 // DOM - Document Object Model - обьектная модель документа
 
 //старый способ обращения к элементу в DOM
-const box = document.getElementById('box');
-console.log(box);//в консоли вс кода работать не будет, потому что document есть только у браузера
+const box = document.getElementById('box'),
+      btns = document.getElementsByTagName('button'),
+      circle = document.getElementsByClassName('circle'),
+      allElem = document.querySelectorAll('.circle'),
+      oneElement = document.querySelector('.box'),
+      wrapper = document.querySelector('.wrapper');
 
-//обращение по тегу
-const btns = document.getElementsByTagName('button');
-console.log(btns); //но мы получим не один элемент, а коллецию(псевдомассив)
-//чтобы обратится к конкретному элементу, нужно указать его индекс, так как это массив
-console.log(btns[1]); //будет выведен только второй элемент с таким тегом
-// если даже есть только один элемент такой на странице, всё равно будет образован псевдомассив
+box.style.width = 100 + 'px';
+box.style.height = 50 + 'px';
+box.style.background = '#222';
+box.style.color = 'white';
 
-//обращение по классу
-//также будет получена коллекция
-const circle = document.getElementsByClassName('circle');
-console.log(circle);
+//если при обращении к псевдомассиву мы не будем указывать конкретный элемент из него, то инлайн стили через js не сработают
 
-//СОВРЕМЕННЫЕ СПОСОБЫ
+// btns.style.background = 'red'; //error, ничего не произойдет
+btns[1].style.background = 'red'; //изменится второй элемент из псевдомассива
 
-//обращение по селектору
-//вернется псевдо массив, но к которому можно применить один единственный метод foreach
-//если старые способы возвращали коллекцию HTMLElements, то querySelectorAll NODELIst
-const allElem = document.querySelectorAll('*'); //вернет всё что есть на странице
-console.log(allElem);
+//чтобы указывать несколько свойств в одной строке
 
-const allDiv = document.querySelectorAll('div'); //вернет все дивы на странице
-console.log(allDiv);
+const someVal = 100;
 
-const allClasses = document.querySelectorAll('.circle'); //вернет все указанные классы, важно чтоб стояла точка впереди
-console.log(allClasses);
+//для множества свойст
+btns[0].style.cssText = `background: #222; color: white; width: ${someVal}px`;
 
-allClasses.forEach( item => console.log(item)); //выведет списком все наши классы который мы ранее нашли через querySelectorAll
+//одно и тоже свойство для псевдомассивов, для которых нельзя использовать foreach
+for (let i = 0; i < btns.length; i++) {
+    btns[i].style.width = 200 + 'px';
+}
 
-const allTags = document.querySelectorAll('button');
-console.log(allTags);
+//а для элементов через querySelectorAll уже можно использовать foreach
+allElem.forEach(e => e.style.color = 'yellow'); 
 
-const oneElement = document.querySelector('div'); //вернет первый указанный элемент, в данном случае мы получим самый первый див на странице
-console.log(oneElement);
+//создать новый элемент
+const div  = document.createElement('div'); //сейчас он создался в js
+//чтобы он появился на странице мы должны указать где он должен появиться
+//но для начала зададим ему класс
+div.classList.add('create-div');
+//теперь можем выводить его на странице
+//к примеру в начале body
+// document.body.prepend(div);
+//или вконце
+// document.body.append(div);
+//или внутри какого-то элемента
+// wrapper.prepend(div);
+//или перед определенным элементом из списка элементов
+circle[2].before(div);
+
+//удаление элемента
+btns[4].remove();
+
+//заменить один элемент другим
+//первым указываем какой мы заменяем, вторым - на какой
+btns[2].replaceWith(box);
+
+div.innerHTML = 'NikDoe';
+//можно передавать и целые структуры
+// div.innerHTML = '<h1></h1>'
+
+//когда мы четко знаем что от пользователя должен прийти только текст, то нужно использовать textContent
+div.textContent = 'NikDoe'; //кроме текста добавить ничего нельзя
+
+//добавление какой либо отдеьной части HTML
+div.insertAdjacentHTML('afterbegin', '<h1>afterbegin</h1>'); // вставляет в начало нашего элемента, по аналогии с prepend
+div.insertAdjacentHTML('afterend', '<h1>afterend</h1>');// вставляет в после элемента к которому применяли insertAdjacentHTML
+div.insertAdjacentHTML('beforebegin', '<h1>beforebegin</h1>');//перед элементом в которому применили insertAdjacentHTML
+div.insertAdjacentHTML('beforeend', '<h1>beforeend</h1>'); //вставляет вконец нашего элемента, по аналогии с append
+
+//метод querySelectorAll можно применять для поиска не по всему документу а только внутри какого-то блока
+
+wrapper.querySelectorAll('circle');
+
+
+//СТАРЫЕ МЕТОДЫ
+
+
+// wrapper.appendChild(div);
+// wrapper.insertBefore(div, circle[0]);
+// wrapper.removeChild(circle[1]); //удаление
+// wrapper.replaceChild(box, btns[2]);
