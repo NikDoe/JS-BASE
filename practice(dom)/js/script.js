@@ -1,58 +1,124 @@
-/* Задания на урок:
-
-1) Удалить все рекламные блоки со страницы (правая часть сайта)
-
-2) Изменить жанр фильма, поменять "комедия" на "драма"
-
-3) Изменить задний фон постера с фильмом на изображение "bg.jpg". Оно лежит в папке img.
-Реализовать только при помощи JS
-
-4) Список фильмов на странице сформировать на основании данных из этого JS файла.
-Отсортировать их по алфавиту 
-
-5) Добавить нумерацию выведенных фильмов */
-
 'use strict';
 
-const movieDB = {
-    movies: [
-        "Логан",
-        "Лига справедливости",
-        "Ла-ла лэнд",
-        "Одержимость",
-        "Скотт Пилигрим против..."
-    ]
-};
+//часто бывает такая ситуация когда наши скрипты должны быть загружены после того как загрузиться DOM дерево
+//для этого мы должны обернуться весь наш код в специальный слушатель DOMContentLoaded
 
-const promoAdv = document.querySelectorAll('.promo__adv img'),
-    promoBG = document.querySelector('.promo__bg'),
-    genre = promoBG.querySelector('.promo__genre'),
-    movieList = document.querySelector('.promo__interactive-list');
+document.addEventListener('DOMContentLoaded', () => {
+    const movieDB = {
+        movies: [
+            "Логан",
+            "Лига справедливости",
+            "Ла-ла лэнд",
+            "Одержимость",
+            "Скотт Пилигрим против..."
+        ]
+    };
 
-//1
-promoAdv.forEach(e => e.remove(e));
+    const promoAdv = document.querySelectorAll('.promo__adv img'),
+        promoBG = document.querySelector('.promo__bg'),
+        genre = promoBG.querySelector('.promo__genre'),
+        movieList = document.querySelector('.promo__interactive-list'),
+        //обращаемся к нашим элементам
+        form = document.querySelector('form.add'), //форма
+        input = form.querySelector('.adding__input'), //input
+        checkbox = form.querySelector('[type="checkbox"]'); //удобнее всего искать через атрибуты
 
-//2
-genre.textContent = 'драма';
 
-//3
-promoBG.style.backgroundImage = 'url("img/bg.jpg")';
+    //1.10 обернем функцию удаления рекламы и сделаем ёё универсальной задав аргументы
+    const deleteAdv = arr => arr.forEach(e => e.remove(e));
 
-//4, 5
-movieList.innerHTML = '';
-movieDB.movies.sort();
+    //1.12 обернем подствавление наших данных тоже в функцию
+    const makeChanges = () => {
+        genre.textContent = 'драма';
+        promoBG.style.backgroundImage = 'url("img/bg.jpg")';
+    };
 
-movieDB.movies.forEach((e, i) => {
-    movieList.innerHTML += `
-    <li class="promo__interactive-item">${i+1}. ${e}
-        <div class="delete"></div>
-    </li>
-    `;
+    //1.14 обернем нашу сортировку тоже в функцию, для возможных будущих разростаний функции, также сделаем ее более универсальной
+    const sortMovies = arr => {
+        arr.sort();
+    };
+
+    //1.7 обернём создание списка наших фильмов на странице в фукнцию, а так же сделаем ее более универсальной, через аргументы
+    const creatMovieList = (films, parent) => {
+        parent.innerHTML = '';
+        //5.1 перенесли функцию сортировки
+        sortMovies(movieDB.movies);
+
+        films.forEach((e, i) => {
+            parent.innerHTML += `
+            <li class="promo__interactive-item">${i+1}. ${e}
+                <div class="delete"></div>
+            </li>
+            `;
+        });
+
+        //3 создаем обработчик событий для иконочки корзины, для этого воспользуемся перебором
+        //а вкачесте аргументов для колбэк фукнции укажаем каждую отдельную корзинку(btn) и её индекс(i)
+        document.querySelectorAll('.delete').forEach((btn, i) => {
+            //3.1 обращаемся к каждой корзине по отдельности и навешываем на нее обработчик событий
+            btn.addEventListener('click', () => {
+                //3.2далее обращаемя к обертке нашей кнопки, в которую также добавлен и фильм, и удаляем его
+                btn.parentElement.remove();
+
+                //3.3 также удаляем фильм из базы данных
+                movieDB.movies.splice(i, 1); //i - индекс нашей кнопик и нашего элемента, 1 - количество удаляемых элементов из массива
+
+                //3.4 для того чтобы не сбивалась нумераця наших фильмов после удаления, воспользуемся рекурсией и вызовем функцию внутри себя
+                creatMovieList(films, parent);
+            });
+        });
+    };
+
+    //1
+    //1.1первым делом создаем обработчик событий для нашей формы, когда будет нажата кнопка
+    form.addEventListener('submit', e => {
+        //1.2отменяем стандартную перезагрузку страницы после нажатия кнопки
+        e.preventDefault();
+
+        //1.3далее создадим переменную в которую положим данные которые пользователь введет в input
+        let newFilm = input.value; //2.2 необходимо const поменять на let иначе используя наш substring мы не сможем поменять строку, так как константы примитивы менять нельзя
+        //1.4далее создаём в переменую в которую будет заноситься значения поставили галочку или нет
+        const favorite = checkbox.checked; //если стоит то будет возвращаться true, иначе false
+
+        //чтобы убрать возможность добавлять пустые значения создадим условия, которые будет проверять наш импут на пустую строку, пустая строка вернет false
+        if (newFilm) { //помещаем в условие наши функции
+
+            //2 создадим условие которое будет проверять длинну нашей строки
+            if (newFilm.length > 21) {
+                //2.1 далее используем метод по вырезанию строки и интерполяцию
+                newFilm = `${newFilm.substring(0, 22)}...`; //substring обрежет строку не включая 22 символ
+            }
+
+            //4 создадим условие которое проверяет стоил ли галочка, в случае если вернется true(стоит), то будем выводит сообщение
+            if (favorite) { //когда галочка нажата
+                console.log('фильм добавлен в любимые');
+            }
+
+            //1.5 теперь сделам так чтобы наши данные из input добавлялилсь в BD
+            movieDB.movies.push(newFilm); //фильм будет добавляться в конец
+
+            //1.6 отсортируем наши фильмы
+            sortMovies(movieDB.movies);
+
+            //1.9 вызовем функцию пос созданию списка, и размещения его на страницы внутри слушателя нашей формы
+            creatMovieList(movieDB.movies, movieList);
+        }
+
+        //1.16 очистим наше поля для ввода, после нажатия кнопки
+        e.target.reset();
+    });
+
+    //1.15 вызовем функцию сортировки
+
+    //5 переносим вызов нашей фукнции сортировки в функцию creatMovieList, чтобы когда мы удаляли фильмы, сортировка тоже работала
+
+    //1.8 вызовем нашу функцию по созданию списка, вне пределов нашего слушателя формы, чтобы список сразу создавался
+    creatMovieList(movieDB.movies, movieList);
+
+    //1.11 вызовем функцию удаления, подставив нужный аргумент
+    deleteAdv(promoAdv);
+
+    //1.13 вызовем нашу функцию по добавлению изменений
+    makeChanges();
+
 });
-
-// movieDB.movies.forEach((e, i) => {
-//     const li = document.createElement('li');
-//     li.classList.add('promo__interactive-item');
-//     li.insertAdjacentHTML('afterbegin', `${i+1}. ${e}`);
-//     movieList.append(li);
-// });
