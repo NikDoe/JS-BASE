@@ -147,15 +147,19 @@ window.addEventListener('DOMContentLoaded', () => {
         modalCloseBtn = document.querySelector('[data-close]');
 
     //3 добавим обработчик событий который будет открывать наше модальное окно
-    //3.1 переберем с помощью все наши кнопки тригеры
+    //3.1 переберем с помощью все наши кнопки тригеры, так же создадим функцию которая будет открывать модальное окно
+    function openModal () {
+        //3.2 будем добавлять и удалять соотвествуеющие классы для наших модальных окон
+        modal.classList.add('show');
+        modal.classList.remove('hide');
+        //3.3 чтобы сайт при этом не скролился добавим нашему bode следующие инлайн стили
+        document.body.style.overflow = 'hidden';
+        //8.1 чтобы наше окно не поялялось по setTimeout если пользователь уже сам его открыл
+        clearInterval(modalTimerId);
+    }
+
     modalTrigger.forEach(btn => {
-        btn.addEventListener('click', () => {
-            //3.2 будем добавлять и удалять соотвествуеющие классы для наших модальных окон
-            modal.classList.add('show');
-            modal.classList.remove('hide');
-            //3.3 чтобы сайт при этом не скролился добавим нашему bode следующие инлайн стили
-            document.body.style.overflow = 'hidden';
-        });
+        btn.addEventListener('click', openModal);
     });
 
     //4 напишем функцию которая будет отвечать за закрытие нашего модального окна
@@ -185,4 +189,22 @@ window.addEventListener('DOMContentLoaded', () => {
             modalClose();
         }
     });
+
+    //8 добавим функционал чтобы модальное окно открывалось через 10 30 секунд после загрузки страницы
+    const modalTimerId = setTimeout(openModal, 30000);
+
+    //9 реализуем функционал когда пользователь долистал сайт до конца, и нужно показать ему модальное окно
+    
+    //9.1 создадим функцию которая будет отслеживать когда прокрученая часть страницы + видимая часть страницы будут равны высоте всей страницы которую можно проскролить
+    function showModalByScroll() {
+        const d = document.documentElement;
+        if (window.pageYOffset + d.clientHeight >= d.scrollHeight) {
+            openModal();
+            //9.1.1чтобы это событие произошло только один раз, после открытия тут же удалим обработчик событий
+            window.removeEventListener('scroll', showModalByScroll);
+        }
+    }
+
+    //9.2 добавляем обработчик события нашему window
+    window.addEventListener('scroll', showModalByScroll);
 });
