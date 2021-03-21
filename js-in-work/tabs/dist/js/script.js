@@ -215,7 +215,51 @@ window.addEventListener('DOMContentLoaded', () => {
     } else {
       return num; //и если число двузначное то ничего не надо делать, просто вернем num
     }
-  }
+  } //MODAL
+  //1 добавим дата атрибуты data-modal для всех наших кнопок тригеров в index.html, также добавим дата атрибут data-close, для того элемента который будет закрывать наше модальное окно
+  //2 определим переменные
+
+
+  const modalTrigger = document.querySelectorAll('[data-modal]'),
+        //указаываем обязательно All чтобы была возможность работать со всеми модальными окнами которые имеют такой атрибут
+  modal = document.querySelector('.modal'),
+        modalCloseBtn = document.querySelector('[data-close]'); //3 добавим обработчик событий который будет открывать наше модальное окно
+  //3.1 переберем с помощью все наши кнопки тригеры
+
+  modalTrigger.forEach(btn => {
+    btn.addEventListener('click', () => {
+      //3.2 будем добавлять и удалять соотвествуеющие классы для наших модальных окон
+      modal.classList.add('show');
+      modal.classList.remove('hide'); //3.3 чтобы сайт при этом не скролился добавим нашему bode следующие инлайн стили
+
+      document.body.style.overflow = 'hidden';
+    });
+  }); //4 напишем функцию которая будет отвечать за закрытие нашего модального окна
+
+  function modalClose() {
+    modal.classList.add('hide');
+    modal.classList.remove('show'); //4.1 чтобы можно было скролить сайт после закрытие модального окна
+
+    document.body.style.overflow = '';
+  } //5 применим нашу функцию закрытия к соответсвующей кнопке
+
+
+  modalCloseBtn.addEventListener('click', modalClose); //6 добавим возможность закрывать модальное окно по клику вне самого окна
+
+  modal.addEventListener('click', e => {
+    //6.1 добавим условие что если место куда мы нажали это селектор с классом modal
+    if (e.target === modal) {
+      modalClose(); //6.2 тогда будем вызывать фукнцию закрытия
+    }
+  }); //7 добавим возможность закрыть модальное окно по кнопке escape
+
+  document.addEventListener('keydown', e => {
+    //7.1 зададим условие что если кнопка которую мы нажали на клавиатуре это escape и у нашего модального окна нет класса show, тогда будем вызывать функцию закрытия
+    //7.2 второе условие нужно для того чтобы escape не нажимался при закрытом модальном окне
+    if (e.code === 'Escape' && modal.classList.contains('show')) {
+      modalClose();
+    }
+  });
 });
 
 /***/ })
