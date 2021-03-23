@@ -155,7 +155,7 @@ window.addEventListener('DOMContentLoaded', () => {
         //3.3 чтобы сайт при этом не скролился добавим нашему bode следующие инлайн стили
         document.body.style.overflow = 'hidden';
         //8.1 чтобы наше окно не поялялось по setTimeout если пользователь уже сам его открыл
-        clearInterval(modalTimerId);
+        // clearInterval(modalTimerId);
     }
 
     modalTrigger.forEach(btn => {
@@ -191,7 +191,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     //8 добавим функционал чтобы модальное окно открывалось через 10 30 секунд после загрузки страницы
-    const modalTimerId = setTimeout(openModal, 30000);
+    // const modalTimerId = setTimeout(openModal, 30000);
 
     //9 реализуем функционал когда пользователь долистал сайт до конца, и нужно показать ему модальное окно
     
@@ -207,4 +207,103 @@ window.addEventListener('DOMContentLoaded', () => {
 
     //9.2 добавляем обработчик события нашему window
     window.addEventListener('scroll', showModalByScroll);
+
+    // MENU CARDS
+
+    //1 создаём класс для наших карточек
+    class MenuCard {
+        //2 создаём конструктор нашего класса, куда будем помещать наши переменные
+        //4.4 предусматривает тот момент, что у нашего элемента будет не один класс а несколько, поэтому воспользуемся рест оператором и добавим в конструктор ...classes
+        constructor(options, ...classes) {
+
+            this.src = options.src;
+            this.alt = options.alt;
+            this.title = options.title;
+            this.descr = options.descr;
+            this.price = options.price;
+            this.rateOfCurrency = 2.6; //курс доллара
+
+            //4.5 обьявляем наши classes
+            this.classes = classes;
+
+            //4.2 добавляем родителя в который будем помещать наш новосозданный элемент
+            this.parent = document.querySelector(options.parent);
+
+            //3.1 вызовем прямов в конструкторе наш метод конвертации
+            this.convertToBYN();
+            
+        }
+
+        //3 создадим метод конвертации из $ в BYN
+        convertToBYN() {
+            this.price = (this.price * this.rateOfCurrency).toFixed(2);
+        }
+
+        //4 создадим метод который будет рендерить наши элементы на странице
+        render() {
+
+            //4.1 сгенерирем новый элемент на странице
+            const el = document.createElement('div');
+
+            //4.6 добавим условимя что если не один класс не был добавлен элементу, до подставим ему дефолтный класс
+            if(this.classes.length === 0) {
+                //4.6.1 и если оно выполняется, то будем просто заносить в наш массив ...classes, дефолтное значени
+                this.defaultClass = 'menu__item';
+                el.classList.add(this.defaultClass);
+            } else { //4.6.2 а если есть хотя бы один класс то перебором добавим его в наш элемент
+                this.classes.forEach(className => el.classList.add(className));
+            }
+
+            //5 добавим структуру нашего элемента
+            el.innerHTML = `
+                <img src=${this.src} alt=${this.alt}>
+                <h3 class="menu__item-subtitle">${this.title}</h3>
+                <div class="menu__item-descr">${this.descr}</div>
+                <div class="menu__item-divider"></div>
+                <div class="menu__item-price">
+                    <div class="menu__item-cost">Цена:</div>
+                    <div class="menu__item-total"><span>${this.price}</span> руб/день</div>
+                </div>
+            `;
+
+            //4.3 добавляем наш созданный элемент в родителя
+            this.parent.append(el);
+        }
+    }
+
+    //6 создадим экземпляры наших классов
+    new MenuCard({
+        src: "img/tabs/vegy.jpg",
+        alt: "vegy",
+        title: 'Меню "Фитнес"',
+        descr: 'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+        price: 9,
+        parent: '.menu .container'
+    },
+        'menu__item',
+        'big'
+    ).render();
+
+    new MenuCard({
+        src: "img/tabs/elite.jpg",
+        alt: "elite",
+        title: 'Меню "Премиум"',
+        descr: 'В меню "Премиум" мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+        price: 14,
+        parent: '.menu .container'
+    },
+        'menu__item'
+    ).render();
+
+    new MenuCard({
+        src: "img/tabs/post.jpg",
+        alt: "post",
+        title: 'Меню "Постное"',
+        descr: 'Меню "Постное" - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+        price: 11,
+        parent: '.menu .container'
+    },
+        'menu__item'
+    ).render();
+    
 });
