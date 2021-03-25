@@ -98,13 +98,16 @@ window.addEventListener('DOMContentLoaded', () => {
     //MODAL
 
     const modalTrigger = document.querySelectorAll('[data-modal]'),
-        modal = document.querySelector('.modal'),
-        modalCloseBtn = document.querySelector('[data-close]');
+        modal = document.querySelector('.modal');
+        //5 удаляем переменную modalCloseBtn, так как для элементов созданых динамически(сообщение по отправки данных на сервер), она не сработает
+        // modalCloseBtn = document.querySelector('[data-close]');
 
     function openModal() {
         modal.classList.add('show');
         modal.classList.remove('hide');
         document.body.style.overflow = 'hidden';
+
+        clearInterval(modalTimerId);
     }
 
     modalTrigger.forEach(btn => {
@@ -117,10 +120,12 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = '';
     }
 
-    modalCloseBtn.addEventListener('click', modalClose);
+    //5.1 так как переменную мы удалили, мы должны удалить и эту часть, и воспользовться делегированием
+    // modalCloseBtn.addEventListener('click', modalClose);
 
     modal.addEventListener('click', e => {
-        if (e.target === modal) {
+        //5.2 воспользуемя делегированием и добавим доп условия
+        if (e.target === modal || e.target.getAttribute('data-close') == '') {
             modalClose();
         }
     });
@@ -130,6 +135,8 @@ window.addEventListener('DOMContentLoaded', () => {
             modalClose();
         }
     });
+
+    const modalTimerId = setTimeout(openModal, 30000);
 
     function showModalByScroll() {
         const d = document.documentElement;
@@ -224,89 +231,95 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // FEEDBACK FORM
 
-    //1 определяем переменые
     const forms = document.querySelectorAll('form');
 
-    //1.1 cоздали файлик server.php
-
-    //2.1.8 делаем временную болванку сообщений для пользователя, в случае различных статусов запроса
     const message = {
-        loading: 'Загрузка...',
+        //10 вместо слово загрузка подставим картинку
+        loading: 'img/form/spinner.svg',
         success: 'Спасибо!',
         failure: 'Что-то пошло не так...'
     };
 
-    //подвязываем каждой форме на странице нашу функцию postData
     forms.forEach(form => postData(form));
 
-    //2 создаём функцию которая будет отправлять данные на сервер
     function postData(form) {
-
-        //2.1 добавляем обработчик события отправки формы
         form.addEventListener('submit', e => {
-
-            //2.1.1 отменяем стандартное поведение браузера, чтобы при нажатии на кнопку отправки формы, то наша страница не перезагружалась
             e.preventDefault();
 
-            //3 генеруем новый элемент в который будем помещать наше сообщение статусов запросов
-            const statusMessage = document.createElement('div');
-            //3.1 добавим ему класс
-            statusMessage.classList.add('status');
-            //3.2 сгенерируем сообщение после нажатия кнопки отправки, если у пользователя медленный интернет, то он будет видеть это сообщение
-            statusMessage.textContent = message.loading;
-            //3.3 отправляем наше сообщение
-            form.append(statusMessage);
+            //10.1 теперь так как мы передаем картинку если loading, то вместо дива теперь нужно создавать img
+            const statusMessage = document.createElement('img');
+            //10.2 вместо добавления класса мы теперь должны добавлять атрибут src
+            statusMessage.src = message.loading;
+            //10.3 вместо textContent мы теперь должны добавить стили
+            statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+            form.insertAdjacentElement('afterend', statusMessage);
 
-            //2.1.2 формируем в нашей переменной новый запрос
             const request = new XMLHttpRequest();
-
-            //2.1.3 инициализируем наш запрос, и определяем основные параметры запроса 
             request.open('POST', 'server.php');
-
-            //2.1.4 заголовок запроса с именем name и значением value. из документации конструктора FormData нам необходимо value multipart/form-data...однако когда мы используем связку XHR и FormData, такой заголовок создастся автоматически
-            // request.setRequestHeader('Content-type', 'multipart/form-data');
-
-            //если мы точно знаем что данные нужно отправлят в формате json, тогда заголовок нам нужен
             request.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 
-            //2.1.5 обьявляем переменную в которую конструктор FormData будет собирать данные с нашей form
-            //важно!!! чтобы конструктор понимал какие данные ему собирать, у всех импутов должен быть обьявлен атрибут name
             const formData = new FormData(form);
-
-            //6 теперь чтобы данные собранные с формы мы могли преобразовать в json формат, вначале мы должны превратить их просто в обычный обьект, чтобы потом применить stringify
             const obj = {};
-            //6.1 перебираем все данные с FormData  и преоразуем из в пары "ключ: свойство"
             formData.forEach((value, key) => obj[key] = value);
-            //6.2 теперь когда наш данные это обычный обьект, то мы можем использовать stringify
             const json = JSON.stringify(obj);
+            request.send(json);
 
-            //2.1.6 устанавливаем соединение и отсылает запрос к серверу
-            request.send(json); //так как это POST запрос, то у него уже есть body, который является нашим json который до этого был FormData
-
-            //2.1.7 добавляем нашему запросу обработчик 'load'
             request.addEventListener('load', () => {
-
-                //далее формируем условие что если статус нашего запроса 200, т.е. всё хорошо
                 if (request.status === 200) {
                     console.log(request.response);
 
-                    //4 поместим сообщение о том если всё впорядке с запросом
-                    statusMessage.textContent = message.success;
-
-                    //4.1 после отправки данных с формы очищаем форму
+                    //8 вместо statusMessage.textContent  можем использовать нашу функцию, в которую будем предавать данные из нашего обьекта
+                    showThanksModal(message.success);
+                    // statusMessage.textContent = message.success;
                     form.reset();
-
-                    //4.2 удаляем блок с сообщение со страницы
-                    setTimeout(() => {
-                        statusMessage.remove();
-                    }, 2000);
+                    
+                    //9 убираем таймаут от 
+                    statusMessage.remove();
                 } else {
-
-                    //5 в случае ошибки выводим сообщение
-                    statusMessage.textContent = message.failure;
+                    //8.1 тоже самое делое для сообщения об ошибке
+                    showThanksModal(message.failure);
+                    // statusMessage.textContent = message.failure;
                 }
             });
         });
+    }
+
+    //1 создадим функицию которая будет покащывать различные сообщения для пользователя, при отправки данных на сервер
+    function showThanksModal(message) {
+        //2 первым делом обозначим переменную
+        const prevModalDialog = document.querySelector('.modal__dialog');
+
+        //3 скрываем модальное окно с формой, но не удаляем, чтобы пользователь в дальнейшем мог им пользоваться опять
+        prevModalDialog.classList.add('hide');
+        //3.1 вызовем функцию открывающую модальное окно
+        openModal();
+
+        //4 создадим новый элемент на месте спрятанного
+        const thanksModal = document.createElement('div');
+        //4.1 добавим ему точно такой же класс как и скрытого окна
+        thanksModal.classList.add('modal__dialog');
+        //4.2 в новосозданном диве создадим верстку
+        thanksModal.innerHTML = `
+            <div class="modal__content">
+                <div data-close class="modal__close">&times;</div>
+                <div class="modal__title">${message}</div>
+            </div>
+        `;
+
+        //6 так мы с новым модальным окном больше работать не будем, можем создать его без всяких переменных
+        document.querySelector('.modal').append(thanksModal);
+
+        //7 возвращаем старую модалку с формой, и удаляем модалку с сообщением
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            //7.1 чтобы больше не мешать пользователю, закроем окно вызвав функцию modalClose
+            modalClose();
+        }, 2000);
     }
 
 });
