@@ -58,6 +58,33 @@ const restaurant = {
 };
 
 ///////////////////////////////////////
+// String Methods Practice
+
+// 🔴 Delayed Departure from FAO to TXL (11h25)
+//              Arrival from BRU to FAO (11h45)
+//   🔴 Delayed Arrival from HEL to FAO (12h05)
+//            Departure from FAO to LIS (12h30)
+
+const getCode = str => str.slice(0, 3).toUpperCase(),
+  maxArr = [];
+
+const getMaxOfArray = function (numArray) {
+  return Math.max.apply(null, numArray);
+};
+
+for (const flight of flights.split('+')) {
+  const [type, from, to, time] = flight.split(';');
+  const output = `${type.startsWith('_Delayed') ? '🔴' : ''}${type.replaceAll(
+    '_',
+    ' '
+  )} from ${getCode(from)} to ${getCode(to)} (${time.replace(':', 'h')})`;
+
+  maxArr.push(output.length);
+  const max = getMaxOfArray(maxArr);
+  console.log(output.padStart(max));
+}
+
+///////////////////////////////////////
 // Coding Challenge #4
 
 /* 
@@ -110,6 +137,7 @@ GOOD LUCK 😀
 //   }
 // });
 
+/*
 document.body.append(document.createElement('textarea'));
 document.body.append(document.createElement('button'));
 
@@ -127,6 +155,7 @@ document.querySelector('button').addEventListener('click', function () {
     console.log(`${output.padEnd(20)}${'✅'.repeat(i + 1)}`);
   }
 });
+*/
 
 /*
 ///////////////////////////////////////
