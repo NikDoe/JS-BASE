@@ -80,14 +80,10 @@ const displayMovements = function (movements) {
   });
 };
 
-displayMovements(account1.movements);
-
 const calcDisplayBalance = function (movements) {
   const balance = movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = `${balance} €`;
 };
-
-calcDisplayBalance(account1.movements);
 
 const calcDisplaySummary = function (movements) {
   const incomes = movements
@@ -111,8 +107,6 @@ const calcDisplaySummary = function (movements) {
   labelSumInterest.textContent = `${interest}€`;
 };
 
-calcDisplaySummary(account1.movements);
-
 const createUsernames = function (accs) {
   accs.forEach(function (acc) {
     acc.username = acc.owner
@@ -123,6 +117,41 @@ const createUsernames = function (accs) {
   });
 };
 createUsernames(accounts);
+
+///////////////////////////////////////
+// Event handlers
+let currentAccount;
+
+btnLogin.addEventListener('click', function (e) {
+  // Prevent form from submitting
+  e.preventDefault();
+
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+  console.log(currentAccount);
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI and message
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = 100;
+
+    // Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+
+    // Display movements
+    displayMovements(currentAccount.movements);
+
+    // Display balance
+    calcDisplayBalance(currentAccount.movements);
+
+    // Display summary
+    calcDisplaySummary(currentAccount.movements);
+  }
+});
 
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
@@ -424,6 +453,7 @@ const avg2 = calcAverageHumanAge([16, 6, 10, 5, 6, 1, 4]);
 console.log(avg1, avg2);
 */
 
+/*
 // The find Method
 
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
@@ -438,3 +468,4 @@ const account = accounts.find(acc => acc.owner === 'Jessica Davis');
 console.log(account);
 
 // for (const ac of accounts) if (ac.owner === 'Jessica Davis') console.log(ac);
+*/
