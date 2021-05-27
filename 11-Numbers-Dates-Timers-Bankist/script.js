@@ -208,23 +208,32 @@ btnLogin.addEventListener('click', function (e) {
     }`;
     containerApp.style.opacity = 100;
 
-    // Create current date and time
-    const now = new Date();
-    const options = {
-      hour: 'numeric',
-      minute: 'numeric',
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric',
-      // weekday: 'long',
-    };
     // const locale = navigator.language;
     // console.log(locale);
 
-    labelDate.textContent = new Intl.DateTimeFormat(
-      currentAccount.locale,
-      options
-    ).format(now);
+    const createCurrDateAndTime = function () {
+      // Create current date and time
+      const now = new Date();
+      const options = {
+        hour: 'numeric',
+        minute: 'numeric',
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: false,
+      };
+      labelDate.textContent = new Intl.DateTimeFormat(
+        currentAccount.locale,
+        options
+      ).format(now);
+    };
+
+    createCurrDateAndTime();
+
+    setInterval(createCurrDateAndTime, 1000);
 
     // Clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
@@ -544,3 +553,15 @@ console.log('Waiting...');
 
 if (ingredients.includes('spinach')) clearTimeout(pizzaTimer);
 */
+
+// setInterval
+setInterval(function () {
+  const now = new Date();
+  const time = new Intl.DateTimeFormat(navigator.language, {
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false,
+  }).format(now);
+  // console.log(time);
+}, 1000);
