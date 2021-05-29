@@ -64,6 +64,32 @@ btnScrollTo.addEventListener('click', function (e) {
   section1.scrollIntoView({ behavior: 'smooth' });
 });
 
+///////////////////////////////////////
+// Page navigation
+
+// document.querySelectorAll('.nav__link').forEach(function (el) {
+//   el.addEventListener('click', function (e) {
+//     e.preventDefault();
+//     const id = this.getAttribute('href');
+//     console.log(id);
+//     document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
+//   });
+// });
+
+// 1. Add event listener to common parent element
+// 2. Determine what element originated the event
+
+// EVENT DELEGATION
+document.querySelector('.nav__links').addEventListener('click', function (e) {
+  e.preventDefault();
+
+  // Matching strategy
+  if (e.target.classList.contains('nav__link')) {
+    const id = e.target.getAttribute('href');
+    document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
+  }
+});
+
 /*
 ///////////////////////////////////////
 // Selecting, Creating, and Deleting Elements
@@ -169,7 +195,6 @@ setTimeout(() => h1.removeEventListener('mouseenter', alertH1), 10000);
 // h1.onmouseenter = function (e) {
 //   alert('onmouseenter: Great! You are reading the heading :D');
 // };
-*/
 
 ///////////////////////////////////////
 // Event Propagation in Practice
@@ -200,3 +225,4 @@ document.querySelector('.nav').addEventListener(
   },
   true
 );
+*/
