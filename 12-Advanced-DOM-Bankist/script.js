@@ -301,7 +301,6 @@ console.log(h1.parentElement.children);
 [...h1.parentElement.children].forEach(function (el) {
   if (el !== h1) el.style.transform = 'scale(0.5)';
 });
-*/
 
 ///////////////////////////////////////
 // Sticky navigation
@@ -316,3 +315,21 @@ window.addEventListener('scroll', function () {
   if (window.scrollY > initialCoords.top) nav.classList.add('sticky');
   else nav.classList.remove('sticky');
 });
+*/
+
+///////////////////////////////////////
+// Sticky navigation: Intersection Observer API
+
+const obsCallback = function (entries, observer) {
+  entries.forEach(entry => {
+    console.log(entry);
+  });
+};
+
+const obsOptions = {
+  root: null,
+  threshold: [0, 0.2],
+};
+
+const observer = new IntersectionObserver(obsCallback, obsOptions);
+observer.observe(section1);
