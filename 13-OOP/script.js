@@ -27,6 +27,12 @@ const jack = new Person('Jack', 1975);
 
 console.log(jonas instanceof Person);
 
+Person.hey = function () {
+  console.log('Hey there 👋');
+  console.log(this);
+};
+Person.hey();
+
 ///////////////////////////////////////
 // Prototypes
 console.log(Person.prototype);
@@ -145,6 +151,7 @@ class PersonCl {
     return 2037 - this.birthYear;
   }
 
+  // Instance methods
   // Set a property that already exists
   set fullName(name) {
     if (name.includes(' ')) this._fullName = name;
@@ -153,6 +160,12 @@ class PersonCl {
 
   get fullName() {
     return this._fullName;
+  }
+
+  // Static method
+  static hey() {
+    console.log('Hey there 👋');
+    console.log(this);
   }
 }
 
@@ -173,6 +186,7 @@ jessica.greet();
 // 3. Classes are executed in strict mode
 
 const walter = new PersonCl('Walter White', 1965);
+PersonCl.hey();
 
 ///////////////////////////////////////
 // Setters and Getters
