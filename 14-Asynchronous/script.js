@@ -108,10 +108,15 @@ setTimeout(() => {
     }, 1000);
   }, 1000);
 }, 1000);
-*/
 
 ///////////////////////////////////////
 // Consuming Promises
 
-const response = fetch(`https://restcountries.eu/rest/v2/name/norway`);
-console.log(response);
+const getCountryData = function (country) {
+  fetch(`https://restcountries.eu/rest/v2/name/${country}`)
+    .then(response => response.json())
+    .then(data => renderCountry(data[0]));
+};
+
+getCountryData('norway');
+*/
