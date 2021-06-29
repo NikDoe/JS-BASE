@@ -57,7 +57,6 @@ const getCountryData = function (country) {
 getCountryData('finland');
 getCountryData('norway');
 getCountryData('canada');
-*/
 
 ///////////////////////////////////////
 // Welcome to Callback Hell
@@ -109,3 +108,10 @@ setTimeout(() => {
     }, 1000);
   }, 1000);
 }, 1000);
+*/
+
+///////////////////////////////////////
+// Consuming Promises
+
+const response = fetch(`https://restcountries.eu/rest/v2/name/norway`);
+console.log(response);
