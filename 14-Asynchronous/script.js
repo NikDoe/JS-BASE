@@ -120,3 +120,37 @@ const getCountryData = function (country) {
 
 getCountryData('norway');
 */
+
+///////////////////////////////////////
+// Chaining Promises
+
+const getCountryData = function (country) {
+  //contry 1
+  fetch(`https://restcountries.eu/rest/v2/name/${country}`)
+    .then(response => response.json())
+    .then(data => {
+      renderCountry(data[0]);
+
+      const [neighbour] = data[0].borders;
+
+      if (!neighbour) return;
+
+      //contry 2
+      return fetch(`https://restcountries.eu/rest/v2/alpha/${neighbour}`);
+    })
+    .then(response => response.json())
+    .then(data => {
+      renderCountry(data, 'neighbour');
+
+      const [neighbour] = data.borders;
+
+      if (!neighbour) return;
+
+      //contry 3
+      return fetch(`https://restcountries.eu/rest/v2/alpha/${neighbour}`);
+    })
+    .then(response => response.json())
+    .then(data => renderCountry(data, 'neighbour'));
+};
+
+getCountryData('germany');
